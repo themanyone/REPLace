@@ -16,17 +16,26 @@ WIDTH=$(tput cols); for ((i=0; i<$WIDTH; ++i)) do printf "="; done };
 # get dir
 dir=$(basename $(pwd))
 
+ax=($(echo "$1"|xargs)) #unquote shebang arguments ~_^
+if [[ "${#ax[@]}" < "${#@}" ]]; then
+    ax=("$@")
+else
+    src="${ax[@]:(-1)}"
+fi
+
 # left_args are all args before --
 left_args=() right_args=()
-for arg in "$@"; do [[ $arg == "--" ]] && break
+for arg in "${ax[@]}"; do [[ $arg == "--" ]] && break
     left_args+=("$arg"); done
 
 # right_args come after --
-pos=$(( ${#left_args[@]} + 1 ))
-right_args="${@:$pos}"
+pos=$(( "${#left_args[@]}" + 1 ))
+right_args="${ax[@]:$pos}"
 
-# src file is last left arg
-src="${left_args[@]:(-1)}"
+# src file is usually last left arg
+src="${src:-${left_args[@]:(-1)}}"
+# strip off ./
+src="${src##./}"
 
 hr
 echo "Compiling: ${left_args[@]}"

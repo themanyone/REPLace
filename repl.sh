@@ -28,12 +28,12 @@ under certain conditions; See included LICENSE for details.
 args=("$@")
 left_args=()
 
+lastarg=""
 for arg in "${args[@]}"
-do
-    if [[ $arg == "--" ]]; then
-        break
-    fi
-    left_args+=("$arg")
+do # break on -- or if lastarg was run
+    [[ "$arg" == "--" ]] && break
+    left_args+=("$arg"); [[ -n "$lastarg" ]] && break
+    [[ "${arg//-}" == "run" ]] && lastarg="run"
 done
 
 last="${left_args[@]:(-1)}"
