@@ -1,0 +1,48 @@
+#!/bin/bash
+: ${1?"$(clear)REPL Ace 0.1 Copyright (C) 2024 by Henry Kroll III, www.thenerdshow.com
+
+Run source code with compiler of choice
+
+Usage: $(basename "$0") [compiler] [compiler flags] [source] -- [source options]
+
+Warranty information:
+
+REPL Ace comes with ABSOLUTELY NO WARRANTY.
+This is free software, and you are welcome to redistribute it
+under certain conditions; See included LICENSE for details.
+"}
+hr () {
+WIDTH=$(tput cols); for ((i=0; i<$WIDTH; ++i)) do printf "="; done };
+# get dir
+dir=$(basename $(pwd))
+
+# left_args are all args before --
+left_args=() right_args=()
+for arg in "$@"; do [[ $arg == "--" ]] && break
+    left_args+=("$arg"); done
+
+# right_args come after --
+pos=$(( ${#left_args[@]} + 1 ))
+right_args="${@:$pos}"
+
+# src file is last left arg
+src="${left_args[@]:(-1)}"
+
+hr
+echo "Compiling: ${left_args[@]}"
+"${left_args[@]}"
+hr
+# get name of executable or try a.out
+printf "Testing "
+if [[ -f "${src%%.*}" ]]; then
+    echo ./"${src%%.*}":
+    ./"${src%%.*}" "${right_args[@]}" && rm -f "${src%%.*}"
+elif [[ -f "a.out" ]]; then
+    echo ./a.out:
+    ./a.out "${right_args[@]}" && rm -f "a.out"
+elif [[ -f "$dir" ]]; then
+    echo ./"$dir"
+    ./"$dir" "${right_args[@]}" && rm -f "$dir"
+else
+    echo No executable files found in ./"$dir".
+fi
