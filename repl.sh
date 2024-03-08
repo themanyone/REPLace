@@ -35,12 +35,12 @@ do # break on -- or if lastarg was run
     left_args+=("$arg"); [[ -n "$lastarg" ]] && break
     [[ "${arg//-}" == "run" ]] && lastarg="run"
 done
-
+args[0]="./${args[0]##./}" # ensure ./ is there
 last="${left_args[@]:(-1)}"
 echo Watching "$last" for changes.
 while true; do
     fswatch -1 "$last" > /dev/null
     clear
-    "$@"
+    "${args[@]}"
     sleep 1
 done
